@@ -1,1 +1,1 @@
-web: gunicorn app_postgres:app
+web: sh setup.sh && streamlit run streamlit_app.py
