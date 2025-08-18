@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏏 IPL Stats Chatbot - PostgreSQL Powered</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            height: calc(100vh - 40px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .performance-badge {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .suggestions {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .suggestions h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .suggestion-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .suggestion-btn {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            color: #1976d2;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .suggestion-btn:hover {
+            background: #bbdefb;
+            transform: translateY(-2px);
+        }
+
+        .performance-info {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+            padding: 10px 20px;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .refresh-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .chat-container {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 15px 20px;
+            border-radius: 18px;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .bot-message {
+            align-self: flex-start;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            color: #495057;
+            white-space: pre-wrap;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 0.95em;
+        }
+
+        .performance-indicator {
+            font-size: 0.8em;
+            color: #28a745;
+            font-style: italic;
+            margin-top: 5px;
+        }
+
+        .input-container {
+            padding: 25px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 1em;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            align-self: flex-start;
+            background: #ffebee;
+            border: 1px solid #ffcdd2;
+            color: #c62828;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                height: 100vh;
+                border-radius: 0;
+            }
+            
+            .message {
+                max-width: 95%;
+            }
+            
+            .suggestion-buttons {
+                flex-direction: column;
+            }
+            
+            .input-container {
+                padding: 15px 20px;
+            }
+
+            .performance-info {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="performance-badge">🚀 PostgreSQL</div>
+            <h1>🏏 IPL Stats Chatbot</h1>
+            <p>High-Performance Database Analytics!</p>
+        </div>
+        
+        <div class="performance-info">
+            <span>⚡ Powered by PostgreSQL - 10x faster queries with materialized views & indexes</span>
+            <button class="refresh-btn" onclick="refreshViews()">🔄 Refresh Stats</button>
+        </div>
+        
+        <div class="suggestions">
+            <h3>Try these high-performance queries:</h3>
+            <div class="suggestion-buttons">
+                <button class="suggestion-btn" onclick="askSuggestion('Who are the top 10 run scorers in IPL history?')">Top run scorers</button>
+                <button class="suggestion-btn" onclick="askSuggestion('Best batters vs pace bowling in death overs')">Death overs vs pace</button>
+                <button class="suggestion-btn" onclick="askSuggestion('Top wicket takers in IPL')">Top bowlers</button>
+                <button class="suggestion-btn" onclick="askSuggestion('Strike rate in death overs')">Death overs SR</button>
+                <button class="suggestion-btn" onclick="askSuggestion('Best batters in IPL 2024')">2024 top scorers</button>
+                <button class="suggestion-btn" onclick="askSuggestion('Powerplay performance vs left hand batsmen')">Powerplay LHB</button>
+            </div>
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="empty-state">
+                Experience lightning-fast IPL analytics powered by PostgreSQL! 🚀
+            </div>
+        </div>
+
+        <div class="input-container">
+            <input type="text" id="questionInput" class="input-field" placeholder="Ask your IPL question - now with database speed!" onkeypress="handleKeyPress(event)">
+            <button id="sendBtn" class="send-btn" onclick="askQuestion()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const chatContainer = document.getElementById('chatContainer');
+        const questionInput = document.getElementById('questionInput');
+        const sendBtn = document.getElementById('sendBtn');
+        let isFirstMessage = true;
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                askQuestion();
+            }
+        }
+
+        function askSuggestion(question) {
+            questionInput.value = question;
+            askQuestion();
+        }
+
+        async function askQuestion() {
+            const question = questionInput.value.trim();
+            if (!question) return;
+
+            // Clear empty state on first message
+            if (isFirstMessage) {
+                chatContainer.innerHTML = '';
+                isFirstMessage = false;
+            }
+
+            // Add user message
+            addMessage(question, 'user');
+            
+            // Clear input and disable button
+            questionInput.value = '';
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<div class="loading"></div>';
+
+            const startTime = Date.now();
+
+            try {
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ question: question }),
+                });
+
+                const data = await response.json();
+                const queryTime = ((Date.now() - startTime) / 1000).toFixed(2);
+
+                if (response.ok) {
+                    addMessage(data.answer, 'bot');
+                    // Add performance indicator
+                    addPerformanceIndicator(`Query executed in ${queryTime}s`);
+                } else {
+                    addMessage(data.error || 'An error occurred', 'error');
+                }
+            } catch (error) {
+                addMessage('Network error: Please check your connection', 'error');
+            }
+
+            // Re-enable button
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = 'Send';
+            questionInput.focus();
+        }
+
+        function addMessage(content, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}-message`;
+            messageDiv.textContent = content;
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function addPerformanceIndicator(text) {
+            const perfDiv = document.createElement('div');
+            perfDiv.className = 'performance-indicator';
+            perfDiv.textContent = `⚡ ${text}`;
+            
+            const lastMessage = chatContainer.lastElementChild;
+            if (lastMessage && lastMessage.classList.contains('bot-message')) {
+                lastMessage.appendChild(perfDiv);
+            }
+        }
+
+        async function refreshViews() {
+            const refreshBtn = document.querySelector('.refresh-btn');
+            const originalText = refreshBtn.innerHTML;
+            refreshBtn.innerHTML = '🔄 Refreshing...';
+            refreshBtn.disabled = true;
+
+            try {
+                const response = await fetch('/refresh', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    refreshBtn.innerHTML = '✅ Refreshed';
+                    setTimeout(() => {
+                        refreshBtn.innerHTML = originalText;
+                        refreshBtn.disabled = false;
+                    }, 2000);
+                } else {
+                    refreshBtn.innerHTML = '❌ Error';
+                    setTimeout(() => {
+                        refreshBtn.innerHTML = originalText;
+                        refreshBtn.disabled = false;
+                    }, 2000);
+                }
+            } catch (error) {
+                refreshBtn.innerHTML = '❌ Error';
+                setTimeout(() => {
+                    refreshBtn.innerHTML = originalText;
+                    refreshBtn.disabled = false;
+                }, 2000);
+            }
+        }
+
+        // Focus input on page load
+        window.addEventListener('load', () => {
+            questionInput.focus();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPL Analytics Pro - AI Chatbot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 1200px;
+            height: 90vh;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            display: flex;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar {
+            width: 320px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            padding: 30px 25px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #ff6b6b, #ffa726);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        .logo-text h1 {
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .logo-text p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            font-weight: 400;
+        }
+
+        .stats-section {
+            margin-bottom: 30px;
+        }
+
+        .stats-title {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-value {
+            color: #4fc3f7;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            font-weight: 400;
+        }
+
+        .quick-actions {
+            flex: 1;
+        }
+
+        .actions-title {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .action-btn {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            color: white;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            backdrop-filter: blur(10px);
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .main-chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.98);
+        }
+
+        .chat-header {
+            padding: 25px 30px;
+            background: rgba(255, 255, 255, 0.9);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(20px);
+        }
+
+        .chat-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 5px;
+        }
+
+        .chat-subtitle {
+            color: #6b7280;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
+        }
+
+        .message {
+            max-width: 85%;
+            animation: messageSlide 0.4s ease-out;
+        }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            align-self: flex-end;
+        }
+
+        .message.bot {
+            align-self: flex-start;
+        }
+
+        .message-content {
+            padding: 18px 24px;
+            border-radius: 20px;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 8px;
+        }
+
+        .message.bot .message-content {
+            background: white;
+            color: #374151;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-bottom-left-radius: 8px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .message.user .message-time {
+            justify-content: flex-end;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .message.bot .message-time {
+            justify-content: flex-start;
+            color: #6b7280;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 18px 24px;
+            background: white;
+            border-radius: 20px;
+            border-bottom-left-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            background: #9ca3af;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .dot:nth-child(1) { animation-delay: 0ms; }
+        .dot:nth-child(2) { animation-delay: 200ms; }
+        .dot:nth-child(3) { animation-delay: 400ms; }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.4;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+
+        .chat-input-container {
+            padding: 25px 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(20px);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 18px 24px;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            background: transparent;
+            color: #374151;
+        }
+
+        .chat-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .send-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px 16px;
+            margin: 6px;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 48px;
+        }
+
+        .send-button:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .send-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 30px;
+            color: #6b7280;
+        }
+
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 32px;
+            color: #9ca3af;
+        }
+
+        .empty-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 10px;
+        }
+
+        .empty-subtitle {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .performance-badge {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-left: 10px;
+        }
+
+        .bot-response {
+            line-height: 1.7;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .bot-response strong {
+            color: #1f2937;
+            font-weight: 600;
+        }
+
+        .bot-response .medal {
+            font-size: 16px;
+            margin-right: 8px;
+        }
+
+        .stats-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 4px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .stat-item {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .cricket-stats {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-left: 4px solid #3b82f6;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+        }
+
+        .player-name {
+            color: #1e40af;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .main-stat {
+            color: #059669;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .secondary-stats {
+            display: flex;
+            gap: 12px;
+            margin-top: 6px;
+            font-size: 13px;
+        }
+
+        .secondary-stat {
+            background: white;
+            padding: 4px 10px;
+            border-radius: 16px;
+            border: 1px solid rgba(0,0,0,0.05);
+            font-weight: 500;
+        }
+
+        .refresh-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            margin-top: 20px;
+        }
+
+        .refresh-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 968px) {
+            .sidebar {
+                display: none;
+            }
+            
+            .chat-container {
+                max-width: 100%;
+            }
+            
+            .message {
+                max-width: 95%;
+            }
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 10px;
+            }
+            
+            .chat-container {
+                height: 100vh;
+                border-radius: 0;
+            }
+            
+            .chat-messages {
+                padding: 20px;
+            }
+            
+            .chat-input-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-cricket"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>IPL Analytics Pro</h1>
+                    <p>PostgreSQL Powered</p>
+                </div>
+            </div>
+            
+            <div class="stats-section">
+                <div class="stats-title">Database Stats</div>
+                <div class="stat-card">
+                    <div class="stat-value">277K+</div>
+                    <div class="stat-label">Total Records</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">17</div>
+                    <div class="stat-label">IPL Seasons</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">10+</div>
+                    <div class="stat-label">Teams Covered</div>
+                </div>
+            </div>
+            
+            <div class="quick-actions">
+                <div class="actions-title">Quick Actions</div>
+                <button class="action-btn" onclick="askSuggestion('Who are the top 10 run scorers in IPL history?')">
+                    <i class="fas fa-trophy" style="margin-right: 8px; color: #fbbf24;"></i>
+                    Top Run Scorers
+                </button>
+                <button class="action-btn" onclick="askSuggestion('Best batters vs pace bowling in death overs')">
+                    <i class="fas fa-clock" style="margin-right: 8px; color: #ef4444;"></i>
+                    Death Overs vs Pace
+                </button>
+                <button class="action-btn" onclick="askSuggestion('Top wicket takers in IPL')">
+                    <i class="fas fa-bowling-ball" style="margin-right: 8px; color: #8b5cf6;"></i>
+                    Top Wicket Takers
+                </button>
+                <button class="action-btn" onclick="askSuggestion('Strike rate in death overs')">
+                    <i class="fas fa-chart-line" style="margin-right: 8px; color: #06b6d4;"></i>
+                    Death Overs Strike Rate
+                </button>
+                <button class="action-btn" onclick="askSuggestion('Best batters in IPL 2024')">
+                    <i class="fas fa-calendar" style="margin-right: 8px; color: #10b981;"></i>
+                    2024 Top Performers
+                </button>
+                <button class="action-btn" onclick="askSuggestion('Best bowling averages in powerplay')">
+                    <i class="fas fa-bolt" style="margin-right: 8px; color: #f59e0b;"></i>
+                    Powerplay Bowling
+                </button>
+                <button class="action-btn" onclick="askSuggestion('Highest batting averages in IPL history')">
+                    <i class="fas fa-star" style="margin-right: 8px; color: #fbbf24;"></i>
+                    Best Averages
+                </button>
+                
+                <button class="refresh-button" onclick="refreshViews()">
+                    <i class="fas fa-sync-alt" style="margin-right: 8px;"></i>
+                    Refresh Database
+                </button>
+            </div>
+        </div>
+        
+        <div class="main-chat">
+            <div class="chat-header">
+                <div class="chat-title">
+                    IPL Cricket Analytics
+                    <span class="performance-badge">
+                        <i class="fas fa-bolt"></i>
+                        PostgreSQL Powered
+                    </span>
+                </div>
+                <div class="chat-subtitle">
+                    <span class="status-indicator"></span>
+                    Ask me anything about IPL statistics and data
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div class="empty-title">Welcome to IPL Analytics Pro!</div>
+                    <div class="empty-subtitle">
+                        Start by asking questions about IPL statistics, player performances, team analysis, or use the quick actions from the sidebar.
+                        <br><br>
+                        <strong>Example queries:</strong> "Top run scorers", "Best death overs batsmen", "2024 season analysis"
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <div class="input-wrapper">
+                    <input type="text" id="chatInput" class="chat-input" placeholder="Ask about IPL stats... e.g., 'Who are the top run scorers?'" onkeypress="handleKeyPress(event)">
+                    <button id="sendButton" class="send-button" onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendButton = document.getElementById('sendButton');
+        let isFirstMessage = true;
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function askSuggestion(question) {
+            chatInput.value = question;
+            sendMessage();
+        }
+
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            // Clear empty state on first message
+            if (isFirstMessage) {
+                chatMessages.innerHTML = '';
+                isFirstMessage = false;
+            }
+
+            // Add user message
+            addMessage(message, 'user');
+            
+            // Clear input and show loading
+            chatInput.value = '';
+            showTypingIndicator();
+            
+            // Disable send button
+            sendButton.disabled = true;
+            sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            const startTime = Date.now();
+
+            try {
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ question: message }),
+                });
+
+                const data = await response.json();
+                const queryTime = ((Date.now() - startTime) / 1000).toFixed(2);
+
+                // Remove typing indicator
+                removeTypingIndicator();
+
+                if (response.ok) {
+                    addMessage(data.answer, 'bot', queryTime);
+                } else {
+                    addMessage(data.error || 'An error occurred', 'bot', queryTime, true);
+                }
+            } catch (error) {
+                removeTypingIndicator();
+                addMessage('Network error: Please check your connection', 'bot', null, true);
+            }
+
+            // Re-enable send button
+            sendButton.disabled = false;
+            sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
+            chatInput.focus();
+        }
+
+        function addMessage(content, type, queryTime = null, isError = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            let performanceInfo = '';
+            if (queryTime && type === 'bot') {
+                performanceInfo = `<i class="fas fa-bolt"></i> ${queryTime}s`;
+            }
+            
+            messageDiv.innerHTML = `
+                <div class="message-content ${isError ? 'error' : ''}">
+                    <div class="bot-response">${formatBotResponse(content)}</div>
+                </div>
+                <div class="message-time">
+                    ${timeString} ${performanceInfo}
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function formatBotResponse(content) {
+            // Format the bot response with better styling
+            return content
+                .replace(/🥇/g, '<span class="medal" style="color: #fbbf24;">🥇</span>')
+                .replace(/🥈/g, '<span class="medal" style="color: #9ca3af;">🥈</span>')
+                .replace(/🥉/g, '<span class="medal" style="color: #cd7f32;">🥉</span>')
+                .replace(/🏏/g, '<span style="color: #059669;">🏏</span>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+        }
+
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot';
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="typing-indicator">
+                    <div class="typing-dots">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                    <span style="margin-left: 8px; color: #6b7280; font-size: 13px;">AI is thinking...</span>
+                </div>
+            `;
+            
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        async function refreshViews() {
+            const refreshBtn = document.querySelector('.refresh-button');
+            const originalText = refreshBtn.innerHTML;
+            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i>Refreshing...';
+            refreshBtn.disabled = true;
+
+            try {
+                const response = await fetch('/refresh', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (response.ok) {
+                    refreshBtn.innerHTML = '<i class="fas fa-check" style="margin-right: 8px; color: #10b981;"></i>Refreshed!';
+                    setTimeout(() => {
+                        refreshBtn.innerHTML = originalText;
+                        refreshBtn.disabled = false;
+                    }, 2000);
+                } else {
+                    refreshBtn.innerHTML = '<i class="fas fa-times" style="margin-right: 8px; color: #ef4444;"></i>Error';
+                    setTimeout(() => {
+                        refreshBtn.innerHTML = originalText;
+                        refreshBtn.disabled = false;
+                    }, 2000);
+                }
+            } catch (error) {
+                refreshBtn.innerHTML = '<i class="fas fa-times" style="margin-right: 8px; color: #ef4444;"></i>Error';
+                setTimeout(() => {
+                    refreshBtn.innerHTML = originalText;
+                    refreshBtn.disabled = false;
+                }, 2000);
+            }
+        }
+
+        // Focus input on page load
+        window.addEventListener('load', () => {
+            chatInput.focus();
+        });
+    </script>
+</body>
+</html>

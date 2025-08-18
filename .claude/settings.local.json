@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3:*)",
+      "Bash(pip3 install:*)",
+      "Bash(psql:*)",
+      "Bash(curl -X POST http://localhost:8080/ask -H \"Content-Type: application/json\" -d '{\"\"question\"\": \"\"Best batters vs pace bowling in death overs\"\"}')"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

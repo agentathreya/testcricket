@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IPL Analytics Pro - Cricket Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            position: relative;
+        }
+
+        .app-container {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 350px;
+            background: rgba(20, 20, 40, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar.collapsed {
+            width: 0;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #ff6b6b, #ffa726);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 8px 32px rgba(255, 107, 107, 0.3);
+        }
+
+        .logo-text h1 {
+            color: white;
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 2px;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .database-info {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .db-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .db-stat:last-child {
+            margin-bottom: 0;
+        }
+
+        .db-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .db-value {
+            color: #4fc3f7;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .sidebar-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .section-title {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .quick-action {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            color: white;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .quick-action:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateX(8px);
+            box-shadow: 0 8px 32px rgba(255, 255, 255, 0.1);
+        }
+
+        .action-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        /* Main Chat Area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+        }
+
+        .chat-header {
+            padding: 20px 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .sidebar-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-toggle:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .chat-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1a1a2e;
+            letter-spacing: -0.5px;
+        }
+
+        .status-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #6b7280;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+
+        .performance-badge {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Chat Messages Area */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
+        }
+
+        .messages-container {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .message {
+            display: flex;
+            gap: 16px;
+            animation: messageSlide 0.5s ease-out;
+        }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .message.bot .message-avatar {
+            background: linear-gradient(135deg, #ff6b6b, #ffa726);
+        }
+
+        .message-content {
+            flex: 1;
+            max-width: calc(100% - 60px);
+        }
+
+        .message-bubble {
+            padding: 20px 24px;
+            border-radius: 20px;
+            position: relative;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .message.user .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 8px;
+        }
+
+        .message.bot .message-bubble {
+            background: white;
+            color: #374151;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-bottom-left-radius: 8px;
+        }
+
+        .message-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            font-size: 11px;
+            opacity: 0.7;
+        }
+
+        .message.user .message-meta {
+            justify-content: flex-end;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .message.bot .message-meta {
+            justify-content: flex-start;
+            color: #6b7280;
+        }
+
+        /* Enhanced Bot Response Styling */
+        .bot-response {
+            line-height: 1.7;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .cricket-result {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-left: 4px solid #3b82f6;
+            padding: 16px;
+            margin: 12px 0;
+            border-radius: 12px;
+            border-top-left-radius: 4px;
+        }
+
+        .player-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .player-row:last-child {
+            border-bottom: none;
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .player-rank {
+            font-size: 18px;
+            font-weight: 700;
+            min-width: 40px;
+        }
+
+        .player-name {
+            color: #1e40af;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .player-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .stat-badge {
+            background: white;
+            padding: 4px 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .main-stat {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 24px;
+            background: white;
+            border-radius: 20px;
+            border-bottom-left-radius: 8px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: #9ca3af;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .dot:nth-child(1) { animation-delay: 0ms; }
+        .dot:nth-child(2) { animation-delay: 200ms; }
+        .dot:nth-child(3) { animation-delay: 400ms; }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.4;
+            }
+            30% {
+                transform: translateY(-12px);
+                opacity: 1;
+            }
+        }
+
+        /* Input Area */
+        .chat-input-area {
+            padding: 20px 30px;
+            background: rgba(255, 255, 255, 0.98);
+            border-top: 1px solid rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(20px);
+        }
+
+        .input-container {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .input-container:focus-within {
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15), 0 8px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 18px 24px;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            background: transparent;
+            color: #374151;
+            line-height: 1.5;
+        }
+
+        .chat-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .input-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+        }
+
+        .send-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 48px;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .send-button:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 6px 24px rgba(102, 126, 234, 0.4);
+        }
+
+        .send-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 30px;
+            color: #6b7280;
+        }
+
+        .empty-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            font-size: 40px;
+            color: #9ca3af;
+        }
+
+        .empty-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 12px;
+        }
+
+        .empty-subtitle {
+            font-size: 16px;
+            line-height: 1.6;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                position: fixed;
+                left: -350px;
+                height: 100vh;
+                z-index: 2000;
+                width: 350px;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .sidebar-toggle {
+                display: block;
+            }
+
+            .main-content {
+                width: 100%;
+            }
+
+            .chat-messages {
+                padding: 20px 15px;
+            }
+
+            .chat-input-area {
+                padding: 15px;
+            }
+
+            .messages-container {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .chat-header {
+                padding: 15px 20px;
+            }
+
+            .chat-title {
+                font-size: 20px;
+            }
+
+            .performance-badge {
+                display: none;
+            }
+
+            .message-bubble {
+                padding: 16px 20px;
+            }
+
+            .chat-input {
+                font-size: 16px;
+                padding: 16px 20px;
+            }
+
+            .player-stats {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+            }
+
+            .stat-badge {
+                font-size: 11px;
+                padding: 3px 8px;
+            }
+        }
+
+        /* Overlay for mobile sidebar */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1500;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-cricket-ball"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>IPL Analytics Pro</h1>
+                        <p>Cricket Intelligence</p>
+                    </div>
+                </div>
+                
+                <div class="database-info">
+                    <div class="db-stat">
+                        <span class="db-label">Total Records</span>
+                        <span class="db-value">277K+</span>
+                    </div>
+                    <div class="db-stat">
+                        <span class="db-label">IPL Seasons</span>
+                        <span class="db-value">17 (2008-2024)</span>
+                    </div>
+                    <div class="db-stat">
+                        <span class="db-label">Teams Covered</span>
+                        <span class="db-value">All IPL Teams</span>
+                    </div>
+                    <div class="db-stat">
+                        <span class="db-label">Query Speed</span>
+                        <span class="db-value">0.1-0.3s</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-content">
+                <div class="section-title">Quick Analytics</div>
+                
+                <button class="quick-action" onclick="askQuery('Who are the top 10 run scorers in IPL history?')">
+                    <div class="action-icon" style="background: linear-gradient(135deg, #fbbf24, #f59e0b);">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 2px;">Top Run Scorers</div>
+                        <div style="font-size: 11px; opacity: 0.7;">All-time leading batsmen</div>
+                    </div>
+                </button>
+                
+                <button class="quick-action" onclick="askQuery('Best batters vs pace bowling in death overs')">
+                    <div class="action-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 2px;">Death Overs vs Pace</div>
+                        <div style="font-size: 11px; opacity: 0.7;">Overs 16-20 performance</div>
+                    </div>
+                </button>
+                
+                <button class="quick-action" onclick="askQuery('Top wicket takers in IPL')">
+                    <div class="action-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                        <i class="fas fa-bowling-ball"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 2px;">Top Wicket Takers</div>
+                        <div style="font-size: 11px; opacity: 0.7;">Leading bowlers analysis</div>
+                    </div>
+                </button>
+                
+                <button class="quick-action" onclick="askQuery('Strike rate in death overs')">
+                    <div class="action-icon" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 2px;">Death Overs Strike Rate</div>
+                        <div style="font-size: 11px; opacity: 0.7;">High-pressure batting</div>
+                    </div>
+                </button>
+                
+                <button class="quick-action" onclick="askQuery('Best batters in IPL 2024')">
+                    <div class="action-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 2px;">2024 Top Performers</div>
+                        <div style="font-size: 11px; opacity: 0.7;">Latest season analysis</div>
+                    </div>
+                </button>
+                
+                <button class="quick-action" onclick="askQuery('Highest batting averages in IPL history')">
+                    <div class="action-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 2px;">Best Batting Averages</div>
+                        <div style="font-size: 11px; opacity: 0.7;">Most consistent batters</div>
+                    </div>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Sidebar Overlay for Mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="chat-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <h1 class="chat-title">IPL Cricket Analytics</h1>
+                        <div class="status-info">
+                            <span class="status-dot"></span>
+                            <span>PostgreSQL • 277K+ Records • Real-time Analysis</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="performance-badge">
+                    <i class="fas fa-bolt"></i>
+                    <span>Lightning Fast</span>
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="messages-container" id="messagesContainer">
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div class="empty-title">Welcome to IPL Analytics Pro!</div>
+                        <div class="empty-subtitle">
+                            Ask me anything about IPL cricket statistics, player performances, team analysis, or seasonal trends. 
+                            Use the quick actions on the left, or type your own cricket questions below.
+                            <br><br>
+                            <strong>Try asking:</strong> "Best death overs batsmen", "Top wicket takers in 2024", "Powerplay specialists"
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-input-area">
+                <div class="input-container">
+                    <input 
+                        type="text" 
+                        id="chatInput" 
+                        class="chat-input" 
+                        placeholder="Ask about IPL statistics, player analysis, team performance..."
+                        onkeypress="handleKeyPress(event)"
+                        autocomplete="off"
+                    >
+                    <div class="input-actions">
+                        <button id="sendButton" class="send-button" onclick="sendMessage()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const messagesContainer = document.getElementById('messagesContainer');
+        const chatInput = document.getElementById('chatInput');
+        const sendButton = document.getElementById('sendButton');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        
+        let isFirstMessage = true;
+        let messageCount = 0;
+
+        // Sidebar Functions
+        function toggleSidebar() {
+            const isMobile = window.innerWidth <= 1024;
+            if (isMobile) {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('active');
+            }
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove('open');
+            sidebarOverlay.classList.remove('active');
+        }
+
+        // Input Handling
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function askQuery(query) {
+            chatInput.value = query;
+            sendMessage();
+            closeSidebar(); // Close sidebar on mobile after selection
+        }
+
+        // Message Functions
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            // Clear empty state
+            if (isFirstMessage) {
+                messagesContainer.innerHTML = '';
+                isFirstMessage = false;
+            }
+
+            // Add user message
+            addUserMessage(message);
+            
+            // Clear input and disable send
+            chatInput.value = '';
+            sendButton.disabled = true;
+            sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            
+            // Show typing indicator
+            showTypingIndicator();
+
+            const startTime = Date.now();
+
+            try {
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ question: message }),
+                });
+
+                const data = await response.json();
+                const queryTime = ((Date.now() - startTime) / 1000).toFixed(2);
+
+                // Remove typing indicator
+                removeTypingIndicator();
+
+                if (response.ok) {
+                    addBotMessage(data.answer, queryTime);
+                } else {
+                    addBotMessage(data.error || 'An error occurred while processing your query.', queryTime, true);
+                }
+            } catch (error) {
+                removeTypingIndicator();
+                addBotMessage('Network error: Please check your connection and try again.', null, true);
+            }
+
+            // Re-enable send button
+            sendButton.disabled = false;
+            sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
+            chatInput.focus();
+        }
+
+        function addUserMessage(content) {
+            messageCount++;
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message user';
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="message-content">
+                    <div class="message-bubble">
+                        ${escapeHtml(content)}
+                    </div>
+                    <div class="message-meta">
+                        ${getCurrentTime()}
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function addBotMessage(content, queryTime = null, isError = false) {
+            messageCount++;
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message bot';
+            
+            let performanceInfo = '';
+            if (queryTime && !isError) {
+                performanceInfo = `<i class="fas fa-bolt"></i> ${queryTime}s`;
+            }
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content">
+                    <div class="message-bubble ${isError ? 'error' : ''}">
+                        <div class="bot-response">${formatBotResponse(content)}</div>
+                    </div>
+                    <div class="message-meta">
+                        ${getCurrentTime()} ${performanceInfo}
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot';
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <div class="typing-dots">
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                        </div>
+                        <span style="margin-left: 12px; color: #6b7280; font-size: 14px; font-weight: 500;">Analyzing cricket data...</span>
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(typingDiv);
+            scrollToBottom();
+        }
+
+        function removeTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        function formatBotResponse(content) {
+            return content
+                .replace(/🥇/g, '<span style="color: #fbbf24; font-size: 18px;">🥇</span>')
+                .replace(/🥈/g, '<span style="color: #9ca3af; font-size: 18px;">🥈</span>')
+                .replace(/🥉/g, '<span style="color: #cd7f32; font-size: 18px;">🥉</span>')
+                .replace(/🏏/g, '<span style="color: #059669; font-size: 16px;">🏏</span>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong style="color: #1f2937;">$1</strong>')
+                .replace(/\n/g, '<br>');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function getCurrentTime() {
+            return new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Window Resize Handler
+        window.addEventListener('resize', () => {
+            const isMobile = window.innerWidth <= 1024;
+            if (!isMobile) {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('active');
+            }
+        });
+
+        // Focus input on load
+        window.addEventListener('load', () => {
+            chatInput.focus();
+        });
+
+        // Prevent zoom on mobile input focus
+        if (window.innerWidth <= 640) {
+            document.addEventListener('touchstart', function() {}, true);
+        }
+    </script>
+</body>
+</html>

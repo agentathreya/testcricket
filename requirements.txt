@@ -1,0 +1,6 @@
+flask==2.3.3
+pandas==2.0.3
+groq==0.4.2
+psycopg2-binary==2.9.7
+sqlalchemy==2.0.23
+python-dotenv==1.0.0
