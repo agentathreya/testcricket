@@ -1,1 +1,1 @@
-web: sh setup.sh && streamlit run streamlit_app.py
+web: chmod +x setup.sh && ./setup.sh && streamlit run streamlit_app.py
