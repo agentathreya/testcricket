@@ -2,12 +2,19 @@ services:
   - type: web
     name: ipl-chatbot
     env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: sh setup.sh && streamlit run streamlit_app.py
+    python:
+      version: 3.11.9
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+    startCommand: sh -c 'chmod +x setup.sh && ./setup.sh && streamlit run streamlit_app.py'
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.9.0
+      - key: PYTHONUNBUFFERED
+        value: true
       - key: DATABASE_URL
-        fromParam: database_url
+        fromDatabase:
+          name: ipl-db
+          property: connectionString
       - key: GROQ_API_KEY
+        sync: false
         fromParam: groq_api_key
