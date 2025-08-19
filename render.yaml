@@ -5,9 +5,9 @@ services:
     python:
       version: 3.11.9
     buildCommand: |
-      pip install --upgrade pip
-      pip install -r requirements.txt
-    startCommand: sh -c 'chmod +x setup.sh && ./setup.sh && streamlit run streamlit_app.py'
+      chmod +x build.sh
+      ./build.sh
+    startCommand: sh -c './setup.sh && streamlit run streamlit_app.py'
     envVars:
       - key: PYTHONUNBUFFERED
         value: true
